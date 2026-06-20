@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Qualifier</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <section class="chat-card">
+      <h1>Project Inquiry</h1>
+      <p class="subtitle">Tell us a bit about your project.</p>
+
+      <form id="leadForm" class="lead-form">
+        <label for="name">Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Your name"
+          required
+        />
+
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@example.com"
+          required
+        />
+
+        <label for="budget">Budget</label>
+        <input
+          type="text"
+          id="budget"
+          name="budget"
+          placeholder="e.g. $500 - $1000"
+          required
+        />
+
+        <label for="timeline">Timeline</label>
+        <input
+          type="text"
+          id="timeline"
+          name="timeline"
+          placeholder="e.g. 2 weeks"
+          required
+        />
+
+        <label for="description">Brief project description</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="5"
+          placeholder="Describe your project..."
+          required
+        ></textarea>
+
+        <button type="submit">Send</button>
+      </form>
+
+      <div id="responseBox" class="response-box"></div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
