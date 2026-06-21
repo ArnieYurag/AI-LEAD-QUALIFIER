@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import requests
 import json
+import csv
 
 load_dotenv ()
 app = Flask(__name__)
@@ -64,11 +65,57 @@ Rules:
     }
     response = requests.post(url, headers=headers, json=payload, timeout=30)
     print ("STATUS CODE:", response.status_code)
-    print ("RAW RESPONSE:", response.text)
+    # print ("RAW RESPONSE:", response.text)
     response.raise_for_status()
     result = response.json()
     content = result["choices"][0]["message"]["content"]
     return extract_json(content)
+def send_to_webhook(lead_data, ai_result):
+    webhook_url = "YOUR_WEBHOOK_URL_HERE"
+
+    payload = {
+        "name": lead_data["name"],
+        "email": lead_data["email"],
+        "budget": lead_data["budget"],
+        "timeline": lead_data["timeline"],
+        "description": lead_data["description"],
+        "score": ai_result["score"],
+        "label": ai_result["label"],
+        "summary": ai_result["summary"]
+    }
+
+    response = requests.post(webhook_url, json=payload, timeout=15)
+    response.raise_for_status()
+
+def save_lead_to_csv(lead_data, ai_result):
+    file_path = "leads.csv"
+    file_exists = os.path.isfile(file_path)
+
+    with open(file_path, mode="a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+
+        if not file_exists:
+            writer.writerow([
+                "name",
+                "email",
+                "budget",
+                "timeline",
+                "description",
+                "score",
+                "label",
+                "summary"
+            ])
+
+        writer.writerow([
+            lead_data["name"],
+            lead_data["email"],
+            lead_data["budget"],
+            lead_data["timeline"],
+            lead_data["description"],
+            ai_result["score"],
+            ai_result["label"],
+            ai_result["summary"]
+        ])
 
 @app.route("/qualify-lead", methods=["POST"])
 def qualify_lead():
@@ -89,6 +136,8 @@ def qualify_lead():
     
     try:
         ai_result = analyze_lead_with_ai(data)
+        print ("FINAL AI RESULT:", ai_result)
+        save_lead_to_csv(data, ai_result)
         return jsonify({
             "status": "success",
             "message": "Lead analyzed successfully",
@@ -102,24 +151,6 @@ def qualify_lead():
             "message": "AI analysis failed",
             "details": str(e)
         }), 500
-    # print("\n=== NEW LEAD===")
-    # print(data)
-    # print("==============\n")
-    # mock_result = {
-    #     "score": 78,
-    #     "label": "Warm",
-    #     "summary": "Client has a clear project need, stated budget, and timeline. Worth following up."
-    # }
-
-    # return jsonify({
-    #     # "status": "success",
-    #     # "message": "Lead received",
-    #     # "lead": data
-    #     "status": "success",
-    #     "message": "Lead analyzed successfully",
-    #     "lead": data,
-    #     "result": mock_result
-    # })
 
 
 if __name__ == "__main__":

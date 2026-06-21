@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 const form = document.getElementById("leadForm");
 const responseBox = document.getElementById("responseBox");
 
@@ -10,6 +11,7 @@ form.addEventListener("submit", async (event) => {
     timeline: form.timeline.value.trim(),
     description: form.description.value.trim()
   };
+  console.log("Submitting:", formData);
   responseBox.innerHTML = "<p>Analyzing lead...</p>"
   try {
     const response = await fetch("http://127.0.0.1:5000/qualify-lead", {
@@ -21,12 +23,21 @@ form.addEventListener("submit", async (event) => {
     });
 
     const data = await response.json();
+    console.log("Full response data:", JSON.stringify(data));
+    console.log("data.result:", data.result);
+    console.log("Response status:", response.status);
+    console.log("Response data:", data);
     if (!response.ok) {
-      responseBox.innerHTML = `
-        <p>${data.message}</p>
-        `;
-      return;
-    }
+  responseBox.innerHTML = `
+    <p style="color:red;"><strong>Error:</strong> ${data.message}</p>
+  `;
+  return;
+}
+if (!data.result) {
+  responseBox.innerHTML = `<p style="color:red;">Unexpected response format.</p>`;
+  console.error("Missing data.result:", data);
+  return;
+}
     responseBox.innerHTML = `
       <h3>Lead Qualification Result</h3>
       <p><strong>Status:</strong> ${data.message}</p>
@@ -41,4 +52,6 @@ form.addEventListener("submit", async (event) => {
     `;
     console.error(error);
   }
+})
+
 });
