@@ -3,15 +3,14 @@ const responseBox = document.getElementById("responseBox");
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-
   const formData = {
-    name: form.name.value,
-    email: form.email.value,
-    budget: form.budget.value,
-    timeline: form.timeline.value,
-    description: form.description.value
+    name: form.name.value.trim(),
+    email: form.email.value.trim(),
+    budget: form.budget.value.trim(),
+    timeline: form.timeline.value.trim(),
+    description: form.description.value.trim()
   };
-  responseBox.innerHTML = "<p>Submitting lead...</p>"
+  responseBox.innerHTML = "<p>Analyzing lead...</p>"
   try {
     const response = await fetch("http://127.0.0.1:5000/qualify-lead", {
       method: "POST",
@@ -24,8 +23,8 @@ form.addEventListener("submit", async (event) => {
     const data = await response.json();
     if (!response.ok) {
       responseBox.innerHTML = `
-        <p>❌ ${data.message}</p>
-      `;
+        <p>${data.message}</p>
+        `;
       return;
     }
     responseBox.innerHTML = `
@@ -38,7 +37,7 @@ form.addEventListener("submit", async (event) => {
     form.reset();
   } catch (error) {
     responseBox.innerHTML = `
-      <p>❌ Unable to connect to backend.</p>
+      <p>Unable to connect to backend.</p>
     `;
     console.error(error);
   }
